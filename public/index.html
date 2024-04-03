@@ -51,6 +51,13 @@
     </form>
 
     <form id="save-cookies-form">
+      <input
+        type="text"
+        id="cookie-filename"
+        name="cookieFilename"
+        placeholder="Enter filename"
+        value="cookies.json"
+      />
       <button type="submit">Save Cookies</button>
     </form>
 
@@ -116,7 +123,20 @@
         .getElementById('save-cookies-form')
         .addEventListener('submit', async event => {
           event.preventDefault();
-          const response = await fetch('/save-cookies', { method: 'POST' });
+
+          const formData = new FormData(
+            document.getElementById('save-cookies-form')
+          );
+          const cookieFilename =
+            formData.get('cookieFilename') || 'cookies.json';
+
+          const response = await fetch('/save-cookies', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ cookieFilename }),
+          });
           alert(await response.text());
         });
 
@@ -124,13 +144,21 @@
         .getElementById('launch-with-cookies-form')
         .addEventListener('submit', async event => {
           event.preventDefault();
-          const url = document.getElementById('url-with-cookies').value;
+          const formData = new FormData(
+            document.getElementById('launch-with-cookies-form')
+          );
+          const url = formData.get('url');
+          const cookieFilename =
+            new FormData(document.getElementById('save-cookies-form')).get(
+              'cookieFilename'
+            ) || 'cookies.json';
+
           const response = await fetch('/launch-with-cookies', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
+              'Content-Type': 'application/json',
             },
-            body: `url=${encodeURIComponent(url)}`,
+            body: JSON.stringify({ url, cookieFilename }),
           });
           const text = await response.text();
           document.getElementById('response').innerText = text;

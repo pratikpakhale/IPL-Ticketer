@@ -47,20 +47,24 @@ app.post('/open-url', async (req, res) => {
 });
 
 app.post('/save-cookies', async (req, res) => {
+  const { cookieFilename } = req.body;
+
   if (!browser || !browser.isConnected()) {
     res.send('No browser instance is open.');
     return;
   }
   const cookies = await page.context().cookies();
-  require('fs').writeFileSync('cookies.json', JSON.stringify(cookies));
+  require('fs').writeFileSync(cookieFilename, JSON.stringify(cookies));
   res.send('Cookies saved successfully!');
 });
 
 app.post('/launch-with-cookies', async (req, res) => {
-  const cookies = require('fs').readFileSync('cookies.json', 'utf8');
+  const { url, cookieFilename } = req.body;
+  const cookies = require('fs').readFileSync(cookieFilename, 'utf8');
+
   await ensureBrowserIsOpen();
   await page.context().addCookies(JSON.parse(cookies));
-  await page.goto(req.body.url);
+  await page.goto(url);
 
   res.send('Cookies loaded successfully!');
 });
