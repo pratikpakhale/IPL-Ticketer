@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IPL Ticketer</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+      }
+
+      form {
+        margin-bottom: 20px;
+      }
+
+      input[type='text'] {
+        width: 300px;
+        padding: 8px;
+        margin-right: 10px;
+      }
+
+      button {
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      #response {
+        white-space: pre-line;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>IPL Ticketer</h1>
+
+    <form id="open-url-form">
+      <input type="text" id="url" name="url" placeholder="Enter URL" />
+      <button type="submit">Open URL</button>
+    </form>
+
+    <form id="save-cookies-form">
+      <button type="submit">Save Cookies</button>
+    </form>
+
+    <form id="launch-with-cookies-form">
+      <input
+        type="text"
+        id="url-with-cookies"
+        name="url"
+        placeholder="Enter URL"
+      />
+      <button type="submit">Launch URL with Cookies</button>
+    </form>
+    <br /><br />
+    <form id="activate-clicker-form">
+      <input
+        type="text"
+        id="seats"
+        name="seats"
+        placeholder="Enter number of seats"
+        value="4"
+      />
+      <br /><br />
+      <input
+        type="text"
+        id="price"
+        name="price"
+        placeholder="Enter seat price"
+        value="2400"
+      />
+      <br /><br />
+      <button type="submit">Activate Clicker</button>
+    </form>
+    <br /><br />
+
+    <form id="confirm-booking-form">
+      <input type="text" id="phone" name="phone" placeholder="phone number" />
+      <input type="text" id="upi" name="upi" placeholder="upi" />
+      <input type="text" id="bank" name="bank" placeholder="@bank" />
+      <br /><br />
+      <button type="submit">Confirm Booking</button>
+    </form>
+
+    <div id="response"></div>
+
+    <script>
+      document
+        .getElementById('open-url-form')
+        .addEventListener('submit', async event => {
+          event.preventDefault();
+          const url = document.getElementById('url').value;
+          const response = await fetch('/open-url', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `url=${encodeURIComponent(url)}`,
+          });
+          const html = await response.text();
+          document.getElementById('response').innerText = html;
+        });
+
+      document
+        .getElementById('save-cookies-form')
+        .addEventListener('submit', async event => {
+          event.preventDefault();
+          const response = await fetch('/save-cookies', { method: 'POST' });
+          alert(await response.text());
+        });
+
+      document
+        .getElementById('launch-with-cookies-form')
+        .addEventListener('submit', async event => {
+          event.preventDefault();
+          const url = document.getElementById('url-with-cookies').value;
+          const response = await fetch('/launch-with-cookies', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `url=${encodeURIComponent(url)}`,
+          });
+          const text = await response.text();
+          document.getElementById('response').innerText = text;
+        });
+
+      document
+        .getElementById('activate-clicker-form')
+        .addEventListener('submit', async event => {
+          event.preventDefault();
+
+          const formData = new FormData(
+            document.getElementById('activate-clicker-form')
+          );
+          const seats = formData.get('seats') || 4;
+          const price = formData.get('price') || 2400;
+
+          const response = await fetch('/activate-clicker', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ seats, price }),
+          });
+
+          const text = await response.text();
+          document.getElementById('response').innerText = text;
+        });
+
+      document
+        .getElementById('confirm-booking-form')
+        .addEventListener('submit', async event => {
+          event.preventDefault();
+
+          const formData = new FormData(
+            document.getElementById('confirm-booking-form')
+          );
+          const phone = formData.get('phone');
+          const upi = formData.get('upi');
+          const bank = formData.get('bank');
+
+          const response = await fetch('/confirm-booking', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ phone, upi, bank }),
+          });
+
+          const text = await response.text();
+          document.getElementById('response').innerText = text;
+        });
+    </script>
+  </body>
+</html>
